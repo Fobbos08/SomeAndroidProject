@@ -21,7 +21,7 @@ public class AnimatedView extends android.support.v7.widget.AppCompatImageView {
     private int xVelocity = 10;
     private int yVelocity = 5;
     private Handler h;
-    private final int FRAME_RATE = 30;
+    private final int FRAME_RATE = 10;
     private SensorListener _sensorListener;
     Matrix rotatedM = new Matrix();
 
@@ -58,7 +58,6 @@ public class AnimatedView extends android.support.v7.widget.AppCompatImageView {
     protected void onDraw(Canvas c) {
         if(animatedBitmap != null)
         {
-            _sensorListener.updateOrientationAngles();
             float[] angles = _sensorListener.getOrientationMatrix();
 
             rotatedM.setRotate((int)(angles[0]*180/3.14));

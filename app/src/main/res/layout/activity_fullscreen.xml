@@ -13,15 +13,17 @@
         android:id="@+id/dummy_button"
         android:layout_width="100dp"
         android:layout_height="50dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
         android:layout_marginStart="78dp"
         android:text="@string/dummy_button" />
 
-    <mylive.live.AnimatedView
-        android:id="@+id/icon"
+    <!--<mylive.live.AnimatedView-->
+        <!--android:id="@+id/icon"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:background="#fa2255" />-->
+    <mylive.live.MyGLSurfaceView
+        android:id="@+id/glView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#fa2255" />
+        android:layout_height="match_parent"/>
 </RelativeLayout>
 

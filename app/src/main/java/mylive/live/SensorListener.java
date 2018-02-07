@@ -8,6 +8,9 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Alina on 28.01.2018.
  */
@@ -17,12 +20,22 @@ public class SensorListener implements SensorEventListener{
     private final float[] mAccelerometerReading = new float[3];
     private final float[] mMagnetometerReading = new float[3];
 
-    private final float[] mRotationMatrix = new float[9];
+    private  float[] mRotationMatrix = new float[9];
     private final float[] mOrientationAngles = new float[3];
+
+    private float[] orientationAngles = new float[3];
+
+    private static final int MAX_SAMPLE_SIZE = 5;
+
+
+    List<Float>[] rollingAverage = new List[3];
 
     public SensorListener(SensorManager sensorManager)
     {
         _sensorManager = sensorManager;
+        rollingAverage[0] = new ArrayList<Float>();
+        rollingAverage[1] = new ArrayList<Float>();
+        rollingAverage[2] = new ArrayList<Float>();
         register();
     }
 
@@ -31,7 +44,8 @@ public class SensorListener implements SensorEventListener{
     }
 
     public float[] getOrientationMatrix(){
-        return mOrientationAngles;
+
+        return orientationAngles;
     }
 
     @Override
@@ -74,11 +88,40 @@ public class SensorListener implements SensorEventListener{
             System.arraycopy(event.values, 0, mMagnetometerReading,
                     0, mMagnetometerReading.length);
         }
+        if (mAccelerometerReading != null && mMagnetometerReading != null) {
+            float R[] = new float[9];
+            float I[] = new float[9];
+            boolean success = SensorManager.getRotationMatrix(R, I, mAccelerometerReading, mMagnetometerReading);
+            if (success) {
+                SensorManager.getOrientation(R, mOrientationAngles);
+            }
+            mRotationMatrix = R;
+            roll(rollingAverage[0], mOrientationAngles[0]);
+            roll(rollingAverage[1], mOrientationAngles[1]);
+            roll(rollingAverage[2], mOrientationAngles[2]);
+            orientationAngles[0] = averageList(rollingAverage[0]);
+            orientationAngles[1] = averageList(rollingAverage[1]);
+            orientationAngles[2] = averageList(rollingAverage[2]);
+        }
+
     }
 
-    public void updateOrientationAngles() {
-        _sensorManager.getRotationMatrix(mRotationMatrix, null,
-                mAccelerometerReading, mMagnetometerReading);
-        _sensorManager.getOrientation(mRotationMatrix, mOrientationAngles);
+    public List<Float> roll(List<Float> list, float newMember){
+        if(list.size() == MAX_SAMPLE_SIZE){
+            list.remove(0);
+        }
+        list.add(newMember);
+        return list;
+    }
+
+    public float averageList(List<Float> tallyUp){
+
+        float total=0;
+        for(float item : tallyUp ){
+            total+=item;
+        }
+        total = total/tallyUp.size();
+
+        return total;
     }
 }

@@ -79,6 +79,8 @@ public class FullscreenActivity extends AppCompatActivity {
     private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
+
+
             findViewById(R.id.dummy_button).setEnabled(false);
             Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
             photoPickerIntent.setType("image/*");
@@ -87,6 +89,15 @@ public class FullscreenActivity extends AppCompatActivity {
         }
     };
 
+    private final View.OnTouchListener mglTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            glView.Rend();
+            return true;
+        }
+    };
+
+    private MyGLSurfaceView glView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,8 +107,10 @@ public class FullscreenActivity extends AppCompatActivity {
        // mVisible = true;
 
         findViewById(R.id.dummy_button).setOnTouchListener(mDelayHideTouchListener);
+        findViewById(R.id.glView).setOnTouchListener(mglTouchListener);
         _sensorListener = new SensorListener((SensorManager) getSystemService(Context.SENSOR_SERVICE));
-
+        glView = findViewById(R.id.glView);
+        glView.setSensorListener(_sensorListener);
     }
 
     @Override
@@ -116,12 +129,25 @@ public class FullscreenActivity extends AppCompatActivity {
                 Bitmap tmpBmp = Bitmap.createBitmap(sourceBitmap,0,0, imageView.getWidth(),imageView.getHeight() );
                 imageView.setBitmap(tmpBmp);
                 imageView.setSensorListener(_sensorListener);
+
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
         }else {
         }
         findViewById(R.id.dummy_button).setEnabled(true);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        glView.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        glView.onResume();
     }
 //    private void hide() {
 //        // Hide UI first
@@ -156,7 +182,11 @@ public class FullscreenActivity extends AppCompatActivity {
 
     //animation method
 
-
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        glView.Rend();
+        return true;
+    }
 
 
 
